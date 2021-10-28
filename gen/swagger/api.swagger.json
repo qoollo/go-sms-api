@@ -22,7 +22,7 @@
   ],
   "paths": {
     "/api/v1/ListSMS": {
-      "post": {
+      "get": {
         "summary": "Lists SMS",
         "description": "Lists SMS",
         "operationId": "ApiService_ListMessages",
@@ -40,16 +40,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MessagesListRequest"
-            }
-          }
-        ],
         "tags": [
           "Messages"
         ]
@@ -91,9 +81,6 @@
     }
   },
   "definitions": {
-    "MessagesListRequest": {
-      "type": "object"
-    },
     "MessagesListResponse": {
       "type": "object",
       "properties": {
