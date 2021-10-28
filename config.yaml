@@ -7,6 +7,6 @@ server:
     port: 3301
 
 modem:
-  comport: /dev/ttyUSB0
+  comport: /dev/ttyUSB1
   baudrate: 9600
   sms_timeout: 12

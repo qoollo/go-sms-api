@@ -3,14 +3,18 @@ package modem
 import (
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"runtime"
 	"strings"
 	"time"
 
+	"github.com/minish144/go-sms-api/gen/pb"
 	"github.com/spf13/viper"
 	"github.com/tarm/serial"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
 )
 
 type Modem struct {
@@ -57,26 +61,17 @@ func (m *Modem) Send(number string, message string) error {
 	}
 }
 
-func (m *Modem) ReadAll() {
+func (m *Modem) ReadAll() ([]*pb.Message, error) {
 	m.sendCommand("AT+CMGF=1\r", false)
 	x, err := m.sendCommand("AT+CMGL=\"ALL\"\r", true)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	log.Println("XXX ", x)
-	tmp := parseMessage(x)
-	log.Println("MESSAGE ", tmp)
+	return parseMessage(x)
 }
 
-type Message struct {
-	Id    string
-	Phone string
-	Date  string
-	Msg   string
-}
-
-func parseMessage(text string) []Message {
-	var list []Message
+func parseMessage(text string) ([]*pb.Message, error) {
+	var list []*pb.Message
 	listLines := strings.Split(text, "\r\n")
 
 	firstIndex := 0
@@ -86,18 +81,28 @@ func parseMessage(text string) []Message {
 
 	for i := firstIndex; i < len(listLines)-3; i = i + 2 {
 		tmp := strings.Split(listLines[i], ",")
+		fmt.Println(tmp)
 		if len(tmp) < 3 {
 			continue
 		}
 		tmp[2] = strings.Replace(tmp[2], `"`, ``, -1)
 		id := tmp[0][7:]
-		phone := make([]byte, len(tmp[2]))
-		hex.Decode(phone, []byte(tmp[2]))
-		msg := make([]byte, len(listLines[i+1]))
-		hex.Decode(msg, []byte(listLines[i+1]))
-		list = append(list, Message{Id: id, Phone: string(phone), Date: tmp[4], Msg: string(msg)})
+		phone := tmp[2]
+		msg := listLines[i+1]
+
+		bs, err := hex.DecodeString(msg)
+		if err != nil {
+			return nil, err
+		}
+		e := unicode.UTF16(unicode.BigEndian, unicode.IgnoreBOM)
+		es, _, err := transform.Bytes(e.NewDecoder(), bs)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println(string(es))
+		list = append(list, &pb.Message{Id: id, Phone: string(phone), Date: tmp[4], Message: string(msg)})
 	}
-	return list
+	return list, nil
 }
 
 /*
