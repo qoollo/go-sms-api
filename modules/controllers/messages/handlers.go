@@ -46,3 +46,26 @@ func Send(ctx context.Context, in *pb.Messages_SendRequest) (*pb.Messages_SendRe
 
 	return &pb.Messages_SendResponse{}, nil
 }
+
+func List(ctx context.Context, in *pb.Messages_ListRequest) (*pb.Messages_ListResponse, error) {
+	comport := viper.GetString("modem.comport")
+	baudrate := viper.GetInt("modem.baudrate")
+	newModem, err := modem.New(comport, baudrate)
+	if err != nil {
+		logrus.WithFields(
+			logrus.Fields{
+				"error":    err.Error(),
+				"comport":  comport,
+				"baudrate": baudrate,
+			},
+		).Errorln("failed to initialize a modem")
+		return nil, err
+	}
+
+	messages, err := newModem.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.Messages_ListResponse{Messages: messages}, nil
+}
