@@ -13,4 +13,11 @@ message Messages {
 
     message SendResponse {
     }
+
+    message ListRequest {
+    }
+
+    message ListResponse {
+        repeated Message messages = 1;
+    }
 }

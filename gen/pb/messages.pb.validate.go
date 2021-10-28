@@ -240,3 +240,152 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = Messages_SendResponseValidationError{}
+
+// Validate checks the field values on Messages_ListRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *Messages_ListRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// Messages_ListRequestValidationError is the validation error returned by
+// Messages_ListRequest.Validate if the designated constraints aren't met.
+type Messages_ListRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Messages_ListRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e Messages_ListRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e Messages_ListRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e Messages_ListRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e Messages_ListRequestValidationError) ErrorName() string {
+	return "Messages_ListRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Messages_ListRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMessages_ListRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Messages_ListRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Messages_ListRequestValidationError{}
+
+// Validate checks the field values on Messages_ListResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *Messages_ListResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetMessages() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return Messages_ListResponseValidationError{
+					field:  fmt.Sprintf("Messages[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// Messages_ListResponseValidationError is the validation error returned by
+// Messages_ListResponse.Validate if the designated constraints aren't met.
+type Messages_ListResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Messages_ListResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e Messages_ListResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e Messages_ListResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e Messages_ListResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e Messages_ListResponseValidationError) ErrorName() string {
+	return "Messages_ListResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Messages_ListResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMessages_ListResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Messages_ListResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Messages_ListResponseValidationError{}
