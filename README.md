@@ -15,6 +15,17 @@ $ go build
 $ sudo ./go-sms-api # sudo is required
 ```
 
+### Running using Docker
+Build an image
+```bash
+$ docker build -t smsapi .
+```
+
+..and run it mounting config file and /dev folder as volumes to access serial ports from the docker container
+```bash
+$ docker run -v ${PWD}/config.yaml:/config.yaml -v /dev:/dev --privileged -p 3201:3201 -p 3200:3200 smsapi
+```
+
 ## Development
 ### Dependencies
 ```bash
