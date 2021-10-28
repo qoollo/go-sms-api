@@ -90,17 +90,25 @@ func parseMessage(text string) ([]*pb.Message, error) {
 		phone := tmp[2]
 		msg := listLines[i+1]
 
-		bs, err := hex.DecodeString(msg)
+		msgBytes, err := hex.DecodeString(msg)
 		if err != nil {
 			return nil, err
 		}
 		e := unicode.UTF16(unicode.BigEndian, unicode.IgnoreBOM)
-		es, _, err := transform.Bytes(e.NewDecoder(), bs)
+		msgString, _, err := transform.Bytes(e.NewDecoder(), msgBytes)
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println(string(es))
-		list = append(list, &pb.Message{Id: id, Phone: string(phone), Date: tmp[4], Message: string(msg)})
+
+		phoneBytes, err := hex.DecodeString(phone)
+		if err != nil {
+			return nil, err
+		}
+		phoneString, _, err := transform.Bytes(e.NewDecoder(), phoneBytes)
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, &pb.Message{Id: id, Phone: string(phoneString), Date: tmp[4], Message: string(msgString)})
 	}
 	return list, nil
 }
