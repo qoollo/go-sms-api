@@ -61,6 +61,12 @@ func (m *Modem) Send(number string, message string) error {
 	}
 }
 
+func (m *Modem) USSD(command string) (*pb.Message, error) {
+	atCommand := fmt.Sprintf("AT+CUSD=1,%s", command)
+	fmt.Println(m.sendCommand(atCommand, true))
+	return nil, nil
+}
+
 func (m *Modem) ReadAll() ([]*pb.Message, error) {
 	m.sendCommand("AT+CMGF=1\r", false)
 	x, err := m.sendCommand("AT+CMGL=\"ALL\"\r", true)
