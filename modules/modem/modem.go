@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -61,10 +62,16 @@ func (m *Modem) Send(number string, message string) error {
 	}
 }
 
-func (m *Modem) USSD(command string) (*pb.Message, error) {
-	atCommand := fmt.Sprintf("AT+CUSD=1,%s", command)
-	fmt.Println(m.sendCommand(atCommand, true))
-	return nil, nil
+func (m *Modem) USSD(command string) (string, error) {
+	atCommand := fmt.Sprintf("AT+CUSD=1,\"%s\",15\r", command)
+	resp, err := m.sendCommand(atCommand, true)
+	if err != nil {
+		return "", err
+	}
+
+	msg := regexp.MustCompile("CUSD:(?s)(.*)\",")
+	fmt.Println("match:", msg.FindString(resp), "|||")
+	return "", nil
 }
 
 func (m *Modem) ReadAll() ([]*pb.Message, error) {
@@ -146,8 +153,11 @@ func (m *Modem) sendCommand(message string, wait bool) (string, error) {
 		if n > 0 {
 			status = string(buf[:n])
 			msg += status
-			if strings.HasSuffix(status, "OK\r\n") || strings.HasSuffix(status, "ERROR\r\n") {
-				break
+			// if strings.HasSuffix(status, "OK\r\n") || strings.HasSuffix(status, "ERROR\r\n") {
+			// 	break
+			// }
+			if strings.HasSuffix(status, "ERROR\r\n") {
+				return "", errors.New(status)
 			}
 		}
 	}
