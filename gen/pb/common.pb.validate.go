@@ -40,6 +40,10 @@ func (m *Message) Validate() error {
 		return nil
 	}
 
+	// no validation rules for Id
+
+	// no validation rules for Date
+
 	if !_Message_Phone_Pattern.MatchString(m.GetPhone()) {
 		return MessageValidationError{
 			field:  "Phone",

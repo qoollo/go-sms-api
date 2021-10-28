@@ -71,6 +71,12 @@
     "apiMessage": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
         "phone": {
           "type": "string"
         },
