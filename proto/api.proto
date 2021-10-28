@@ -37,4 +37,16 @@ service ApiService {
             tags: "Messages";
         };
     }
+
+    rpc ListMessages(Messages.ListRequest) returns (Messages.ListResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/ListSMS";
+        };
+
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "Lists SMS";
+            summary: "Lists SMS";
+            tags: "Messages";
+        };
+    }
 }

@@ -3,14 +3,18 @@ package modem
 import (
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"runtime"
 	"strings"
 	"time"
 
+	"github.com/minish144/go-sms-api/gen/pb"
 	"github.com/spf13/viper"
 	"github.com/tarm/serial"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
 )
 
 type Modem struct {
@@ -57,38 +61,57 @@ func (m *Modem) Send(number string, message string) error {
 	}
 }
 
-func (m *Modem) ReadAll() {
+func (m *Modem) ReadAll() ([]*pb.Message, error) {
 	m.sendCommand("AT+CMGF=1\r", false)
 	x, err := m.sendCommand("AT+CMGL=\"ALL\"\r", true)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	log.Println("XXX ", x)
-	tmp := parseMessage(x)
-	log.Println("MESSAGE ", tmp)
+	return parseMessage(x)
 }
 
-type Message struct {
-	Id    string
-	Phone string
-	Date  string
-	Msg   string
-}
-
-func parseMessage(text string) []Message {
-	var list []Message
+func parseMessage(text string) ([]*pb.Message, error) {
+	var list []*pb.Message
 	listLines := strings.Split(text, "\r\n")
-	for i := 0; i < len(listLines)-3; i = i + 2 {
+
+	firstIndex := 0
+	if len(listLines) > 0 && len(listLines[0]) < 3 {
+		firstIndex = 1
+	}
+
+	for i := firstIndex; i < len(listLines)-3; i = i + 2 {
 		tmp := strings.Split(listLines[i], ",")
+		fmt.Println(tmp)
+		if len(tmp) < 3 {
+			continue
+		}
 		tmp[2] = strings.Replace(tmp[2], `"`, ``, -1)
 		id := tmp[0][7:]
-		phone := make([]byte, len(tmp[2]))
-		hex.Decode(phone, []byte(tmp[2]))
-		msg := make([]byte, len(listLines[i+1]))
-		hex.Decode(msg, []byte(listLines[i+1]))
-		list = append(list, Message{Id: id, Phone: string(phone), Date: tmp[4], Msg: string(msg)})
+		phone := tmp[2]
+		msg := listLines[i+1]
+		date := tmp[4][1:]
+
+		msgBytes, err := hex.DecodeString(msg)
+		if err != nil {
+			return nil, err
+		}
+		e := unicode.UTF16(unicode.BigEndian, unicode.IgnoreBOM)
+		msgString, _, err := transform.Bytes(e.NewDecoder(), msgBytes)
+		if err != nil {
+			return nil, err
+		}
+
+		phoneBytes, err := hex.DecodeString(phone)
+		if err != nil {
+			return nil, err
+		}
+		phoneString, _, err := transform.Bytes(e.NewDecoder(), phoneBytes)
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, &pb.Message{Id: id, Phone: string(phoneString), Date: date, Message: string(msgString)})
 	}
-	return list
+	return list, nil
 }
 
 /*

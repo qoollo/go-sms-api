@@ -21,6 +21,30 @@
     "application/json"
   ],
   "paths": {
+    "/api/v1/ListSMS": {
+      "get": {
+        "summary": "Lists SMS",
+        "description": "Lists SMS",
+        "operationId": "ApiService_ListMessages",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/MessagesListResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "tags": [
+          "Messages"
+        ]
+      }
+    },
     "/api/v1/SendSMS": {
       "post": {
         "summary": "Sends an SMS",
@@ -57,6 +81,17 @@
     }
   },
   "definitions": {
+    "MessagesListResponse": {
+      "type": "object",
+      "properties": {
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiMessage"
+          }
+        }
+      }
+    },
     "MessagesSendRequest": {
       "type": "object",
       "properties": {
@@ -71,6 +106,12 @@
     "apiMessage": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
         "phone": {
           "type": "string"
         },

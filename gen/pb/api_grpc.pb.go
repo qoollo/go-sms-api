@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApiServiceClient interface {
 	SendMessage(ctx context.Context, in *Messages_SendRequest, opts ...grpc.CallOption) (*Messages_SendResponse, error)
+	ListMessages(ctx context.Context, in *Messages_ListRequest, opts ...grpc.CallOption) (*Messages_ListResponse, error)
 }
 
 type apiServiceClient struct {
@@ -38,11 +39,21 @@ func (c *apiServiceClient) SendMessage(ctx context.Context, in *Messages_SendReq
 	return out, nil
 }
 
+func (c *apiServiceClient) ListMessages(ctx context.Context, in *Messages_ListRequest, opts ...grpc.CallOption) (*Messages_ListResponse, error) {
+	out := new(Messages_ListResponse)
+	err := c.cc.Invoke(ctx, "/api.ApiService/ListMessages", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApiServiceServer is the server API for ApiService service.
 // All implementations must embed UnimplementedApiServiceServer
 // for forward compatibility
 type ApiServiceServer interface {
 	SendMessage(context.Context, *Messages_SendRequest) (*Messages_SendResponse, error)
+	ListMessages(context.Context, *Messages_ListRequest) (*Messages_ListResponse, error)
 	mustEmbedUnimplementedApiServiceServer()
 }
 
@@ -52,6 +63,9 @@ type UnimplementedApiServiceServer struct {
 
 func (UnimplementedApiServiceServer) SendMessage(context.Context, *Messages_SendRequest) (*Messages_SendResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendMessage not implemented")
+}
+func (UnimplementedApiServiceServer) ListMessages(context.Context, *Messages_ListRequest) (*Messages_ListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMessages not implemented")
 }
 func (UnimplementedApiServiceServer) mustEmbedUnimplementedApiServiceServer() {}
 
@@ -84,6 +98,24 @@ func _ApiService_SendMessage_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ApiService_ListMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Messages_ListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).ListMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.ApiService/ListMessages",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).ListMessages(ctx, req.(*Messages_ListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ApiService_ServiceDesc is the grpc.ServiceDesc for ApiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -94,6 +126,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendMessage",
 			Handler:    _ApiService_SendMessage_Handler,
+		},
+		{
+			MethodName: "ListMessages",
+			Handler:    _ApiService_ListMessages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
