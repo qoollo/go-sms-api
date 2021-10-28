@@ -20,9 +20,11 @@ func Send(ctx context.Context, in *pb.Messages_SendRequest) (*pb.Messages_SendRe
 	if err != nil {
 		logrus.WithFields(
 			logrus.Fields{
-				"error": err.Error(),
+				"error":    err.Error(),
+				"comport":  comport,
+				"baudrate": baudrate,
 			},
-		).Errorln("failed to initialize modem")
+		).Errorln("failed to initialize a modem")
 		return nil, err
 	}
 
