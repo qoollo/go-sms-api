@@ -89,6 +89,7 @@ func parseMessage(text string) ([]*pb.Message, error) {
 		id := tmp[0][7:]
 		phone := tmp[2]
 		msg := listLines[i+1]
+		date := tmp[4][1:]
 
 		msgBytes, err := hex.DecodeString(msg)
 		if err != nil {
@@ -108,7 +109,7 @@ func parseMessage(text string) ([]*pb.Message, error) {
 		if err != nil {
 			return nil, err
 		}
-		list = append(list, &pb.Message{Id: id, Phone: string(phoneString), Date: tmp[4], Message: string(msgString)})
+		list = append(list, &pb.Message{Id: id, Phone: string(phoneString), Date: date, Message: string(msgString)})
 	}
 	return list, nil
 }
