@@ -11,7 +11,6 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
-	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -32,77 +31,31 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
-	_ = sort.Sort
 )
 
 // Validate checks the field values on Message with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
+// proto definition for this message. If any rules are violated, an error is returned.
 func (m *Message) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on Message with the rules defined in the
-// proto definition for this message. If any rules are violated, the result is
-// a list of violation errors wrapped in MessageMultiError, or nil if none found.
-func (m *Message) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *Message) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
-	var errors []error
-
 	if !_Message_Phone_Pattern.MatchString(m.GetPhone()) {
-		err := MessageValidationError{
+		return MessageValidationError{
 			field:  "Phone",
 			reason: "value does not match regex pattern \"^\\\\+(?:[0-9]●?){6,14}[0-9]$\"",
 		}
-		if !all {
-			return err
+	}
+
+	if l := utf8.RuneCountInString(m.GetMessage()); l < 1 || l > 160 {
+		return MessageValidationError{
+			field:  "Message",
+			reason: "value length must be between 1 and 160 runes, inclusive",
 		}
-		errors = append(errors, err)
 	}
 
-	if m.GetMessage() != "" {
-
-		if utf8.RuneCountInString(m.GetMessage()) > 160 {
-			err := MessageValidationError{
-				field:  "Message",
-				reason: "value length must be at most 160 runes",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
-	}
-
-	if len(errors) > 0 {
-		return MessageMultiError(errors)
-	}
 	return nil
 }
-
-// MessageMultiError is an error wrapping multiple validation errors returned
-// by Message.ValidateAll() if the designated constraints aren't met.
-type MessageMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m MessageMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m MessageMultiError) AllErrors() []error { return m }
 
 // MessageValidationError is the validation error returned by Message.Validate
 // if the designated constraints aren't met.
