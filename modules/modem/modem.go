@@ -78,8 +78,17 @@ type Message struct {
 func parseMessage(text string) []Message {
 	var list []Message
 	listLines := strings.Split(text, "\r\n")
-	for i := 0; i < len(listLines)-3; i = i + 2 {
+
+	firstIndex := 0
+	if len(listLines) > 0 && len(listLines[0]) < 3 {
+		firstIndex = 1
+	}
+
+	for i := firstIndex; i < len(listLines)-3; i = i + 2 {
 		tmp := strings.Split(listLines[i], ",")
+		if len(tmp) < 3 {
+			continue
+		}
 		tmp[2] = strings.Replace(tmp[2], `"`, ``, -1)
 		id := tmp[0][7:]
 		phone := make([]byte, len(tmp[2]))
