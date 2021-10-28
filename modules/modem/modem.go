@@ -1,7 +1,9 @@
 package modem
 
 import (
+	"encoding/hex"
 	"errors"
+	"log"
 	"os"
 	"runtime"
 	"strings"
@@ -55,10 +57,12 @@ func (m *Modem) Send(number string, message string) error {
 	}
 }
 
-/*
 func (m *Modem) ReadAll() {
 	m.sendCommand("AT+CMGF=1\r", false)
-	x := m.sendCommand("AT+CMGL=\"ALL\"\r", true)
+	x, err := m.sendCommand("AT+CMGL=\"ALL\"\r", true)
+	if err != nil {
+		log.Println(err.Error())
+	}
 	log.Println("XXX ", x)
 	tmp := parseMessage(x)
 	log.Println("MESSAGE ", tmp)
@@ -87,6 +91,7 @@ func parseMessage(text string) []Message {
 	return list
 }
 
+/*
 func (m *Modem) Delete(id string) {
 	m.sendCommand("AT+CMGF=1\r", false)
 	x := m.sendCommand("AT+CMGD="+id+"\r", true)
