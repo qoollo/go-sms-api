@@ -10,12 +10,6 @@ COPY . .
 RUN CGO_ENABLED=0 go build -o api .
 
 FROM alpine AS bin
-
-# RUN apk update && \
-#     apk -y install sudo
-# RUN useradd -m docker && echo "docker:docker" | chpasswrd && adduser docker sudo
-# USER docker
-
 COPY --from=build /go/src/app/api /api
 # creates empty config.yaml to prevent docker's
 # "mounting file on directory" error
