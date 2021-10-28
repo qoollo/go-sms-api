@@ -28,7 +28,7 @@ func New(comport string, boudrate int) (*Modem, error) {
 	var err error
 	m.instance, err = serial.OpenPort(c)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	return m, nil
@@ -51,7 +51,7 @@ func (m *Modem) Send(number string, message string) error {
 	case err := <-c:
 		return err
 	case <-time.After(viper.GetDuration("modem.sms_timeout") * time.Second):
-		return errors.New("timeout exceed")
+		return errors.New("failed to send sms: timeout exceed")
 	}
 }
 
@@ -93,6 +93,7 @@ func (m *Modem) Delete(id string) {
 	log.Println("MESSAGE ", x)
 }
 */
+
 func (m *Modem) sendCommand(message string, wait bool) (string, error) {
 	m.instance.Flush()
 	_, err := m.instance.Write([]byte(message))
