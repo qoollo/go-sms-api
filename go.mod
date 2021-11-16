@@ -17,6 +17,8 @@ require (
 )
 
 require (
+	github.com/argandas/serial v0.0.0-20160316175758-889a5ad85462 // indirect
+	github.com/argandas/sim900 v0.0.0-20210625172547-e076539432be // indirect
 	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
